@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace mp3Player
 {
@@ -59,10 +60,18 @@ namespace mp3Player
             if (key.GetValue("Volume") != null) int.TryParse(key.GetValue("Volume").ToString(), out _volume);
             if ( key.GetValue("LastMediaFileName") != null ) LastMediaFileName = key.GetValue("LastMediaFileName").ToString();
             if (key.GetValue("LastMediaPosition") != null) double.TryParse(key.GetValue("LastMediaPosition").ToString(), out _lastMediaPosition);
+            string mediaList = "";
+            if (key.GetValue("MediaList") != null)
+            {
+                mediaList = key.GetValue("MediaList").ToString();
+                mediaPlayList = mediaList.Split(',').ToList();
+            }
         }
 
         private void SaveConfig()
         {
+            string mediaFiles = string.Join(", ", mediaPlayList);
+            key.SetValue("MediaList", mediaFiles);
             key.SetValue("Top", Top);
             key.SetValue("Left", Left);
             key.SetValue("Width", Width);

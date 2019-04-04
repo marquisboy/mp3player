@@ -34,6 +34,7 @@
             this.btnResetConfig = new System.Windows.Forms.Button();
             this.txtCurrentTime = new System.Windows.Forms.TextBox();
             this.btnLoadFile = new System.Windows.Forms.Button();
+            this.ckbBreak = new System.Windows.Forms.CheckBox();
             this.tlpButtons = new System.Windows.Forms.TableLayoutPanel();
             this.btnGoStart = new System.Windows.Forms.Button();
             this.btnStop = new System.Windows.Forms.Button();
@@ -53,7 +54,6 @@
             this.tmrPlayTick = new System.Windows.Forms.Timer(this.components);
             this.tmrIncrementTick = new System.Windows.Forms.Timer(this.components);
             this.tmrVolume = new System.Windows.Forms.Timer(this.components);
-            this.ckbBreak = new System.Windows.Forms.CheckBox();
             this.tlpMain.SuspendLayout();
             this.tlpFunctions.SuspendLayout();
             this.tlpButtons.SuspendLayout();
@@ -93,7 +93,7 @@
             this.tlpFunctions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 35.62753F));
             this.tlpFunctions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28.34008F));
             this.tlpFunctions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 36.03239F));
-            this.tlpFunctions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 140F));
+            this.tlpFunctions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.tlpFunctions.Controls.Add(this.btnResetConfig, 0, 0);
             this.tlpFunctions.Controls.Add(this.txtCurrentTime, 2, 0);
             this.tlpFunctions.Controls.Add(this.btnLoadFile, 0, 0);
@@ -111,10 +111,10 @@
             // 
             this.btnResetConfig.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnResetConfig.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnResetConfig.Location = new System.Drawing.Point(90, 2);
+            this.btnResetConfig.Location = new System.Drawing.Point(87, 2);
             this.btnResetConfig.Margin = new System.Windows.Forms.Padding(0);
             this.btnResetConfig.Name = "btnResetConfig";
-            this.btnResetConfig.Size = new System.Drawing.Size(68, 29);
+            this.btnResetConfig.Size = new System.Drawing.Size(66, 29);
             this.btnResetConfig.TabIndex = 1;
             this.btnResetConfig.Text = "Presets";
             this.btnResetConfig.UseVisualStyleBackColor = true;
@@ -127,11 +127,12 @@
             this.txtCurrentTime.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtCurrentTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtCurrentTime.ForeColor = System.Drawing.Color.Yellow;
-            this.txtCurrentTime.Location = new System.Drawing.Point(161, 2);
+            this.txtCurrentTime.Location = new System.Drawing.Point(156, 2);
             this.txtCurrentTime.Margin = new System.Windows.Forms.Padding(1, 0, 1, 10);
+            this.txtCurrentTime.Multiline = true;
             this.txtCurrentTime.Name = "txtCurrentTime";
             this.txtCurrentTime.ReadOnly = true;
-            this.txtCurrentTime.Size = new System.Drawing.Size(85, 17);
+            this.txtCurrentTime.Size = new System.Drawing.Size(81, 19);
             this.txtCurrentTime.TabIndex = 2;
             this.txtCurrentTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -142,11 +143,21 @@
             this.btnLoadFile.Location = new System.Drawing.Point(2, 2);
             this.btnLoadFile.Margin = new System.Windows.Forms.Padding(0);
             this.btnLoadFile.Name = "btnLoadFile";
-            this.btnLoadFile.Size = new System.Drawing.Size(86, 29);
+            this.btnLoadFile.Size = new System.Drawing.Size(83, 29);
             this.btnLoadFile.TabIndex = 0;
             this.btnLoadFile.Text = "Load";
             this.btnLoadFile.UseVisualStyleBackColor = true;
             this.btnLoadFile.Click += new System.EventHandler(this.BtnLoadFile_Click);
+            // 
+            // ckbBreak
+            // 
+            this.ckbBreak.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.ckbBreak.Location = new System.Drawing.Point(243, 5);
+            this.ckbBreak.Name = "ckbBreak";
+            this.ckbBreak.Size = new System.Drawing.Size(133, 23);
+            this.ckbBreak.TabIndex = 3;
+            this.ckbBreak.Text = "Break";
+            this.ckbBreak.UseVisualStyleBackColor = true;
             // 
             // tlpButtons
             // 
@@ -406,16 +417,6 @@
             // 
             this.tmrVolume.Interval = 20;
             this.tmrVolume.Tick += new System.EventHandler(this.tmrVolume_Tick);
-            // 
-            // ckbBreak
-            // 
-            this.ckbBreak.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.ckbBreak.Location = new System.Drawing.Point(252, 5);
-            this.ckbBreak.Name = "ckbBreak";
-            this.ckbBreak.Size = new System.Drawing.Size(133, 23);
-            this.ckbBreak.TabIndex = 3;
-            this.ckbBreak.Text = "Break";
-            this.ckbBreak.UseVisualStyleBackColor = true;
             // 
             // frmMP3Player
             // 

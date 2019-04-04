@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
 using WMPLib;
-using CSCore;
-using CSCore.Codecs;
-using CSCore.SoundOut;
-using CSCore.Streams;
 using System.Drawing;
-using Microsoft.Win32;
-using System.Windows.Forms.VisualStyles;
+//using Microsoft.Win32;
+//using System.Windows.Forms.VisualStyles;
 using System.Collections.Generic;
 
 namespace mp3Player
@@ -86,6 +82,7 @@ namespace mp3Player
             {
                 player.URL = CurrentFileName;
                 txtMediaName.Text = GetFileNameFromURL(CurrentFileName);
+                PlayList = config.mediaPlayList;
                 player.controls.play();
                 System.Threading.Thread.Sleep(1000);
                 player.controls.pause();
@@ -134,7 +131,7 @@ namespace mp3Player
             CurrentFileName = PlayList[0];
             player.URL = CurrentFileName;
             player.controls.play();
-            System.Threading.Thread.Sleep(3000);
+            System.Threading.Thread.Sleep(1000);
             txtMediaName.Text = player.currentMedia.name;// GetFileNameFromURL(FileName);
             tbFileProgress.Maximum = 100; //(int)player.currentMedia.duration;
             tbFileProgress.Minimum = 0;

@@ -79,6 +79,7 @@ namespace mp3Player
             pbVolume.Value = config.Volume;
             Volume = config.Volume;
             CurrentFileName = config.LastMediaFileName;
+            CurrentFileIndex = config.CurrentFileIndex;
             if (CurrentFileName != null && CurrentFileName != "" )
             {
                 player.URL = CurrentFileName;
@@ -144,12 +145,12 @@ namespace mp3Player
                 player.URL = CurrentFileName;
                 player.controls.play();
                 System.Threading.Thread.Sleep(1000);
-                txtMediaName.Text = player.currentMedia.name;// GetFileNameFromURL(FileName);
-                tbFileProgress.Maximum = 100; //(int)player.currentMedia.duration;
+                txtMediaName.Text = player.currentMedia.name;
+                tbFileProgress.Maximum = 100;
                 tbFileProgress.Minimum = 0;
                 tbFileProgress.SmallChange = 1;
                 tbFileProgress.TickFrequency = 5;
-                tbFileProgress.Value = 0;// (int)player.controls.currentPosition;// Math.Round((player.controls.currentPosition/ player.controls.currentItem.duration)*100);
+                tbFileProgress.Value = 0;
                 player.controls.stop();
                 SetButtonState(true);
                 txtCurrentTime.Text = player.controls.currentPositionString;
@@ -189,7 +190,7 @@ namespace mp3Player
 
         private void Shutdown()
         {
-            config.SaveConfig(this.Top, this.Left, this.Width, this.Height, CurrentFileName, PlayList, player.controls.currentPosition, pbVolume.Value );
+            config.SaveConfig(this.Top, this.Left, this.Width, this.Height, CurrentFileName, CurrentFileIndex, PlayList, player.controls.currentPosition, pbVolume.Value );
             player = null;
             ofdSelectFile = null;
             this.Close();
@@ -352,6 +353,8 @@ namespace mp3Player
             if (CurrentFileIndex < PlayList.Count-1)
             {
                 CurrentFileName = PlayList[++CurrentFileIndex];
+                btnGoStart.BackgroundImage = Properties.Resources.GotoStart2;
+                btnGoStart.Enabled = true;
             }
             else
             {

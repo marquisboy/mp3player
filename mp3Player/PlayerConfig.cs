@@ -24,6 +24,7 @@ namespace mp3Player
         public int Width { get; set; }
         public int Height { get; set; }
         public int Volume { get; set; }
+        public int CurrentFileIndex { get; set; }
 
         public string LastMediaFileName { get; set; }
         public List<string> MediaPlayList { get; set; }
@@ -54,6 +55,7 @@ namespace mp3Player
             json.Add("mediaFileList","[]");
             json.Add("volume", 0);
             json.Add("width", 400);
+            json.Add("currentFileIndex", 0);
             File.WriteAllText(ConfigFileName, json.ToString());
 
             return json.ToString();
@@ -78,6 +80,7 @@ namespace mp3Player
             Volume = ConfigJSON.GetValue("volume").Value<int>();
             LastMediaFileName = ConfigJSON.GetValue("lastMediaFileName").Value<string>();
             LastMediaPosition = ConfigJSON.GetValue("lastMediaPosition").Value<double>();
+            CurrentFileIndex = ConfigJSON.GetValue("currentFileIndex").Value<int>();
             mediaList = ConfigJSON.GetValue("mediaFileList").Value<string>();
             MediaPlayList = mediaList.Split(',').ToList();
         }
@@ -91,13 +94,14 @@ namespace mp3Player
             ConfigJSON["left"] =  Left;
             ConfigJSON["width"] = Width;
             ConfigJSON["height"] = Height;
-            ConfigJSON["lastMediaFileName"] = (LastMediaFileName==null)?"":LastMediaFileName;
+            ConfigJSON["lastMediaFileName"] = (LastMediaFileName == null)?"":LastMediaFileName;
             ConfigJSON["lastMediaPosition"] = LastMediaPosition;
             ConfigJSON["volume"] =  Volume;
+            ConfigJSON["currentFileIndex"] = CurrentFileIndex;
             File.WriteAllText(ConfigFileName, ConfigJSON.ToString());
         }
 
-        public void SaveConfig( int top, int left, int width, int height, string mediaFileName, List<string> playList, double mediaPosition, int volume)
+        public void SaveConfig( int top, int left, int width, int height, string mediaFileName, int currentFileIndex, List<string> playList, double mediaPosition, int volume)
         {
             Top = top;
             Left = left;
@@ -107,6 +111,7 @@ namespace mp3Player
             LastMediaFileName = mediaFileName;
             MediaPlayList = playList;
             LastMediaPosition = mediaPosition;
+            CurrentFileIndex = currentFileIndex;
             SaveConfig();
         }
 

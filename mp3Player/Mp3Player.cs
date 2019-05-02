@@ -2,8 +2,6 @@
 using System.Windows.Forms;
 using WMPLib;
 using System.Drawing;
-//using Microsoft.Win32;
-//using System.Windows.Forms.VisualStyles;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 
@@ -21,10 +19,6 @@ namespace mp3Player
 
     public partial class frmMP3Player : Form
     {
-        //private const int APPCOMMAND_VOLUME_MUTE = 0x80000;
-        //private const int WM_APPCOMMAND = 0x319;
-        //private const int APPCOMMAND_MICROPHONE_VOLUME_UP = 26 * 65536;
-        //private const int APPCOMMAND_MICROPHONE_VOLUME_DOWN = 25 * 65536;
         private const string STOPPED = "Stopped";
         private const string PLAYING = "Playing";
         private const string PAUSED = "Paused";
@@ -120,14 +114,7 @@ namespace mp3Player
                 lblMediaName.Text = PAUSED;
             }
             PlayerLoaded = true;
-            //player.PlayStateChange += new _WMPOCXEvents_PlayStateChangeEventHandler(player_PlayStateChange);
-
         }
-
-        //        private void player_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
-        //        {
-        //
-        //        }
 
         private void BtnLoadFile_Click(object sender, EventArgs e)
         {

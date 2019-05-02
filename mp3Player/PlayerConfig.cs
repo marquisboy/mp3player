@@ -40,7 +40,7 @@ namespace mp3Player
 
         ~PlayerConfig()
         {
-            //SaveConfig();
+
         }
 
         private string CreateConfigFile(string filename)

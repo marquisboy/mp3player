@@ -17,9 +17,5 @@ namespace mp3Player
             MediaFiles = new List<string>();
         }
 
-
-
-
-
     }
 }

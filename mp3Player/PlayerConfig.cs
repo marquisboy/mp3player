@@ -1,6 +1,10 @@
-﻿using Microsoft.Win32;
+﻿using System.CodeDom.Compiler;
+using Microsoft.Win32;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace mp3Player
 {
@@ -11,109 +15,120 @@ namespace mp3Player
         private const int DEFAULT_LEFT = 100;
         private const int DEFAULT_WIDTH = 420;
         private const int DEFAULT_HEIGHT = 255;
-
-        private int _top;
-        private int _left;
-        private int _width;
-        private int _height;
-        private int _volume;
-        private double _lastMediaPosition;
+        private string ConfigFileName = Path.Combine("MP3Config.cfg");
+        private JObject ConfigJSON { get; set; }
 
         public static bool Initialized { get; set; } = false;
-        public int Top { get { return _top; } set { _top = value; } }
-        public int Left { get { return _left; } set { _left = value; } }
-        public int Width { get { return _width; } set { _width = value; } }
-        public int Height { get { return _height; } set { _height = value; } }
-        public int Volume {  get { return _volume; } set { _volume = value; } }
+        public int Top { get;set;  }
+        public int Left { get; set;  }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public int Volume { get; set; }
 
         public string LastMediaFileName { get; set; }
-        public List<string> mediaPlayList { get; set; }
-        public double LastMediaPosition { get { return _lastMediaPosition; } set { _lastMediaPosition = value; } }
+        public List<string> MediaPlayList { get; set; }
+        public double LastMediaPosition { get; set; }
         private RegistryKey key;
+        public clsFileManager MediaFiles { get; set; }
 
         public PlayerConfig()
         {
-            key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\" + REG_KEY, true);
-            if ( key == null)
-            {
-                key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\" + REG_KEY, true);
-                Initialized = false;
-            }
-            else
-            {
-                Initialized = true;
-                LoadConfig();
-            }
+            Initialized = true;
+            LoadConfig();
         }
 
         ~PlayerConfig()
         {
-            key.Close();
+            //SaveConfig();
+        }
+
+        private string CreateConfigFile(string filename)
+        {
+            JObject json = new JObject();
+
+            json.Add("top", 26 );
+            json.Add("left", 26 );
+            json.Add("height", 250);
+            json.Add("lastMediaFileName", "");
+            json.Add("lastMediaPosition", 0);
+            json.Add("mediaFileList","[]");
+            json.Add("volume", 0);
+            json.Add("width", 400);
+            File.WriteAllText(ConfigFileName, json.ToString());
+
+            return json.ToString();
         }
 
         private void LoadConfig()
         {
-            if ( key.GetValue("Top") != null ) int.TryParse(key.GetValue("Top").ToString(), out _top);
-            if ( key.GetValue("Left") != null) int.TryParse(key.GetValue("Left").ToString(), out _left);
-            if ( key.GetValue("Width") != null ) int.TryParse(key.GetValue("Width").ToString(), out _width);
-            if ( key.GetValue("Height") != null ) int.TryParse(key.GetValue("Height").ToString(), out _height);
-            if (key.GetValue("Volume") != null) int.TryParse(key.GetValue("Volume").ToString(), out _volume);
-            if ( key.GetValue("LastMediaFileName") != null ) LastMediaFileName = key.GetValue("LastMediaFileName").ToString();
-            if (key.GetValue("LastMediaPosition") != null) double.TryParse(key.GetValue("LastMediaPosition").ToString(), out _lastMediaPosition);
             string mediaList = "";
-            if (key.GetValue("MediaList") != null)
+
+            if (File.Exists(ConfigFileName))
             {
-                mediaList = key.GetValue("MediaList").ToString();
-                mediaPlayList = mediaList.Split(',').ToList();
+                ConfigJSON = JObject.Parse(File.ReadAllText(ConfigFileName));
             }
+            else
+            {
+                ConfigJSON = JObject.Parse(CreateConfigFile(ConfigFileName));
+            }
+            Top = ConfigJSON.GetValue("top").Value<int>();
+            Left = ConfigJSON.GetValue("left").Value<int>();
+            Width = ConfigJSON.GetValue("width").Value<int>();
+            Height = ConfigJSON.GetValue("height").Value<int>();
+            Volume = ConfigJSON.GetValue("volume").Value<int>();
+            LastMediaFileName = ConfigJSON.GetValue("lastMediaFileName").Value<string>();
+            LastMediaPosition = ConfigJSON.GetValue("lastMediaPosition").Value<double>();
+            mediaList = ConfigJSON.GetValue("mediaFileList").Value<string>();
+            MediaPlayList = mediaList.Split(',').ToList();
         }
 
         private void SaveConfig()
         {
-            string mediaFiles = string.Join(", ", mediaPlayList);
-            key.SetValue("MediaList", mediaFiles);
-            key.SetValue("Top", Top);
-            key.SetValue("Left", Left);
-            key.SetValue("Width", Width);
-            key.SetValue("Height", Height);
-            key.SetValue("LastMediaFileName", (LastMediaFileName==null)?"":LastMediaFileName);
-            key.SetValue("LastMediaPosition", LastMediaPosition);
-            key.SetValue("Volume", Volume);
+            string mediaFiles = string.Join(", ", MediaPlayList);
 
-            key.Flush();
+            ConfigJSON["top"] = Top;
+            ConfigJSON["mediaFileList"] = mediaFiles;
+            ConfigJSON["left"] =  Left;
+            ConfigJSON["width"] = Width;
+            ConfigJSON["height"] = Height;
+            ConfigJSON["lastMediaFileName"] = (LastMediaFileName==null)?"":LastMediaFileName;
+            ConfigJSON["lastMediaPosition"] = LastMediaPosition;
+            ConfigJSON["volume"] =  Volume;
+            File.WriteAllText(ConfigFileName, ConfigJSON.ToString());
         }
 
         public void SaveConfig( int top, int left, int width, int height, string mediaFileName, List<string> playList, double mediaPosition, int volume)
         {
-            _top = top;
-            _left = left;
-            _width = width;
-            _height = height;
-            _volume = volume;
+            Top = top;
+            Left = left;
+            Width = width;
+            Height = height;
+            Volume = volume;
             LastMediaFileName = mediaFileName;
-            mediaPlayList = playList;
+            MediaPlayList = playList;
             LastMediaPosition = mediaPosition;
             SaveConfig();
         }
 
         public void ResetConfig()
         {
-            _top = DEFAULT_TOP;
-            _left = DEFAULT_LEFT;
-            _width = DEFAULT_WIDTH;
-            _height = DEFAULT_HEIGHT;
-            _lastMediaPosition = 0.0f;
-            _volume = 50;
+            Top = DEFAULT_TOP;
+            Left = DEFAULT_LEFT;
+            Width = DEFAULT_WIDTH;
+            Height = DEFAULT_HEIGHT;
+            LastMediaPosition = 0.0f;
+            Volume = 50;
             LastMediaFileName = "";
+            MediaPlayList = new List<string>();
 
-            key.SetValue("Top", Top);
-            key.SetValue("Left", Left);
-            key.SetValue("Width", Width);
-            key.SetValue("Height", Height);
-            key.SetValue("Volume", Volume);
-            key.SetValue("LastMediaFileName", LastMediaFileName);
-            key.SetValue("LastMediaPosition", LastMediaPosition);
-            key.Flush();
+            ConfigJSON["top"] =  Top;
+            ConfigJSON["left"] = Left;
+            ConfigJSON["width"] = Width;
+            ConfigJSON["height"] = Height;
+            ConfigJSON["volume"] = Volume;
+            ConfigJSON["lastMediaFileName"] = LastMediaFileName;
+            ConfigJSON["lastMediaPosition"] = LastMediaPosition;
+            SaveConfig();
         }
     }
 }

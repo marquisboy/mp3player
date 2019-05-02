@@ -9,13 +9,15 @@ namespace mp3Player
 {
     public class clsFileManager
     {
-        public string SourceDicretory { get; set; }
+        public string SourceDirectory { get; set; }
         public List<string> MediaFiles { get; set; }
 
         public clsFileManager()
         {
             MediaFiles = new List<string>();
         }
+
+
 
 
 

@@ -5,6 +5,7 @@ using System.Drawing;
 //using Microsoft.Win32;
 //using System.Windows.Forms.VisualStyles;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 
 namespace mp3Player
 {
@@ -20,10 +21,10 @@ namespace mp3Player
 
     public partial class frmMP3Player : Form
     {
-        private const int APPCOMMAND_VOLUME_MUTE = 0x80000;
-        private const int WM_APPCOMMAND = 0x319;
-        private const int APPCOMMAND_MICROPHONE_VOLUME_UP = 26 * 65536;
-        private const int APPCOMMAND_MICROPHONE_VOLUME_DOWN = 25 * 65536;
+        //private const int APPCOMMAND_VOLUME_MUTE = 0x80000;
+        //private const int WM_APPCOMMAND = 0x319;
+        //private const int APPCOMMAND_MICROPHONE_VOLUME_UP = 26 * 65536;
+        //private const int APPCOMMAND_MICROPHONE_VOLUME_DOWN = 25 * 65536;
         private const string STOPPED = "Stopped";
         private const string PLAYING = "Playing";
         private const string PAUSED = "Paused";
@@ -33,14 +34,13 @@ namespace mp3Player
         private const int VOL_INC = 2;
         private const int VOL_DEC = -2;
 
-        private double _currentPosition;
         private PlayerConfig config;
         private int Volume { get; set; }
         private WindowsMediaPlayer player;
         private string CurrentFileName { get; set; } = "";
         private List<string> PlayList { get; set; }
         private bool Paused { get; set; } = true;
-        private double CurrentPosition { get { return _currentPosition; } set { _currentPosition = value; } }
+        private double CurrentPosition { get; set; }
         private Color EnabledButtonBackground { get; set; }
         private Color DisabledButtonBackground { get; set; }
         private int Increment { get; set; }
@@ -48,6 +48,7 @@ namespace mp3Player
         private ProgressBarExt pbVolume;
         private PlayerStates State { get; set; }
         private int CurrentFileIndex = 0;
+        private bool PlayerLoaded = false;
 
         public frmMP3Player()
         {
@@ -82,11 +83,11 @@ namespace mp3Player
             {
                 player.URL = CurrentFileName;
                 txtMediaName.Text = GetFileNameFromURL(CurrentFileName);
-                PlayList = config.mediaPlayList;
+                PlayList = config.MediaPlayList;
                 player.controls.play();
                 System.Threading.Thread.Sleep(1000);
                 player.controls.pause();
-                _currentPosition = config.LastMediaPosition;
+                CurrentPosition = config.LastMediaPosition;
                 player.controls.currentPosition = CurrentPosition;
                 SetButtonState(true);
                 State = PlayerStates.Paused;
@@ -117,30 +118,43 @@ namespace mp3Player
                 txtCurrentTime.Text = player.controls.currentPositionString;
                 lblMediaName.Text = PAUSED;
             }
+            PlayerLoaded = true;
+            //player.PlayStateChange += new _WMPOCXEvents_PlayStateChangeEventHandler(player_PlayStateChange);
+
         }
+
+        //        private void player_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
+        //        {
+        //
+        //        }
 
         private void BtnLoadFile_Click(object sender, EventArgs e)
         {
             ofdSelectFile.DefaultExt = "mp3";
             ofdSelectFile.Multiselect = true;
             DialogResult result = ofdSelectFile.ShowDialog();
-            foreach( var name in ofdSelectFile.FileNames)
+            if (ofdSelectFile.FileNames.Length > 0)
             {
-                PlayList.Add(name);
+                PlayList = new List<string>();
+                foreach (var name in ofdSelectFile.FileNames)
+                {
+                    PlayList.Add(name);
+                }
+                CurrentFileName = PlayList[0];
+                player.URL = CurrentFileName;
+                player.controls.play();
+                System.Threading.Thread.Sleep(1000);
+                txtMediaName.Text = player.currentMedia.name;// GetFileNameFromURL(FileName);
+                tbFileProgress.Maximum = 100; //(int)player.currentMedia.duration;
+                tbFileProgress.Minimum = 0;
+                tbFileProgress.SmallChange = 1;
+                tbFileProgress.TickFrequency = 5;
+                tbFileProgress.Value = 0;// (int)player.controls.currentPosition;// Math.Round((player.controls.currentPosition/ player.controls.currentItem.duration)*100);
+                player.controls.stop();
+                SetButtonState(true);
+                txtCurrentTime.Text = player.controls.currentPositionString;
+                PlayerLoaded = true;
             }
-            CurrentFileName = PlayList[0];
-            player.URL = CurrentFileName;
-            player.controls.play();
-            System.Threading.Thread.Sleep(1000);
-            txtMediaName.Text = player.currentMedia.name;// GetFileNameFromURL(FileName);
-            tbFileProgress.Maximum = 100; //(int)player.currentMedia.duration;
-            tbFileProgress.Minimum = 0;
-            tbFileProgress.SmallChange = 1;
-            tbFileProgress.TickFrequency = 5;
-            tbFileProgress.Value = 0;// (int)player.controls.currentPosition;// Math.Round((player.controls.currentPosition/ player.controls.currentItem.duration)*100);
-            player.controls.stop();
-            SetButtonState(true);
-            txtCurrentTime.Text= player.controls.currentPositionString;
             State = PlayerStates.Paused;
         }
 
@@ -233,11 +247,13 @@ namespace mp3Player
 
         private void TmrPlayTick_Tick(object sender, EventArgs e)
         {
-            txtCurrentTime.Text = player.controls.currentPositionString;
-            tbFileProgress.Value = (int)(Math.Round((player.controls.currentPosition / player.currentMedia.duration)*100));
-            //if ( ckbBreak.Checked)
-            //{
-                var b = 0;
+            if (PlayerLoaded)
+            {
+                txtCurrentTime.Text = player.controls.currentPositionString;
+                if (player.currentMedia.duration > 0)
+                {
+                    tbFileProgress.Value = (int)(Math.Round((player.controls.currentPosition / player.currentMedia.duration) * 100));
+                }
                 if (player.controls.currentPosition >= player.currentMedia.duration - 1 && CurrentFileIndex < PlayList.Count - 1)
                 {
                     CurrentFileName = PlayList[++CurrentFileIndex];
@@ -245,14 +261,7 @@ namespace mp3Player
                     player.controls.play();
                     txtMediaName.Text = player.currentMedia.name;
                 }
-                //else
-                    //CurrentFileIndex = PlayList.Count - 1;
-            //}
-            //if ( player.currentMedia.duration > 0 && !durationSet )
-            //{
-            //    tbFileProgress.Maximum = (int)player.currentMedia.duration;
-            //    durationSet = true;
-            //}
+            }
         }
 
         private void BtnFoward_MouseUp(object sender, MouseEventArgs e)
@@ -311,40 +320,52 @@ namespace mp3Player
 
         private void btnGoStart_Click(object sender, EventArgs e)
         {
-            if ( CurrentFileIndex>0)
+            if ( CurrentFileIndex > 0)
             {
                 CurrentFileName = PlayList[--CurrentFileIndex];
+                if (CurrentFileIndex < PlayList.Count)
+                {
+                    btnGotoEnd.BackgroundImage = Properties.Resources.GotoEnd2;
+                    btnGotoEnd.Enabled = true;
+                }
             }
             else
             {
                 CurrentFileName = PlayList[0];
                 CurrentFileIndex = 0;
             }
-            player.URL = CurrentFileName;
-            player.controls.play();
-            //System.Threading.Thread.Sleep(2000);
-            txtMediaName.Text = player.currentMedia.name;
 
+            if (CurrentFileIndex == 0)
+            {
+                btnGoStart.BackgroundImage = Properties.Resources.GotoStart_disabled;
+                btnGoStart.Enabled = false;
+            }
+            player.URL = CurrentFileName;
+            txtMediaName.Text = player.currentMedia.name;
             player.controls.currentPosition = 0.0f;
             txtCurrentTime.Text = ZERO_TIME;
+            player.controls.play();
         }
 
         private void btnGotoEnd_Click(object sender, EventArgs e)
         {
-            if (CurrentFileIndex++ < PlayList.Count-1)
+            if (CurrentFileIndex < PlayList.Count-1)
             {
-                CurrentFileName = PlayList[CurrentFileIndex];
+                CurrentFileName = PlayList[++CurrentFileIndex];
             }
             else
             {
                 CurrentFileName = PlayList[PlayList.Count - 1];
                 CurrentFileIndex = PlayList.Count - 1;
             }
+            if (CurrentFileIndex == PlayList.Count - 1)
+            {
+                btnGotoEnd.BackgroundImage = Properties.Resources.GotoEnd_disabled;
+                btnGotoEnd.Enabled = false;
+            }
             player.URL = CurrentFileName;
             player.controls.play();
-            //System.Threading.Thread.Sleep(2000);
             txtMediaName.Text = player.currentMedia.name;// GetFileNameFromURL(FileName);
-
             player.controls.currentPosition = 0;// player.currentMedia.duration;
             txtCurrentTime.Text = player.currentMedia.duration.ToString();
         }
